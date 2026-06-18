@@ -1,6 +1,10 @@
-# Papeis do Projeto
+# Papéis do Projeto — Assistente IA NovaTech
 
-Este repositório contém a documentação de papéis do projeto **Assistente de IA para Atendimento NovaTech**, organizada em `docs/papeis`.
+> **Autor:** Willian Goulart  
+> **Programa:** Trilha de Certificação AI First — DGS / DB1 Global Software  
+> **Cenário:** Fase de Entendimento e Contexto
+
+Repositório com a documentação dos papéis do projeto **Assistente de IA para Atendimento da NovaTech**, organizado sob `docs/papeis`. Cada papel possui suas tarefas, entregáveis e guias específicos.
 
 ## Estrutura Principal
 
@@ -25,9 +29,9 @@ Este repositório contém a documentação de papéis do projeto **Assistente de
   - Documentação do papel de QA.
   - Estratégias de teste, critérios de qualidade e validação de resultados.
 
-## Destaque: `docs/papeis/desenvolvedor/`
+## Meu foco: `docs/papeis/desenvolvedor/`
 
-A subpasta `docs/papeis/desenvolvedor/` é especialmente importante para a implementação técnica do projeto. Ela contém:
+Como desenvolvedor, meu trabalho concentra-se na subpasta `docs/papeis/desenvolvedor/`, que reúne toda a implementação técnica do projeto:
 
 - `desenvolvedor.md`
   - Visão geral do papel de desenvolvedor no contexto do assistente de IA.
@@ -57,12 +61,12 @@ A subpasta `docs/papeis/desenvolvedor/` é especialmente importante para a imple
 2. Siga os prompts principais (`prompt-exercicio-1-1.md`, `prompt-exercicio-1-2.md`, `prompt-exercicio-1-3.md`) para iniciar cada exercício.
 3. Utilize as pastas de tarefas para executar o trabalho detalhado e gerar entregáveis.
 
-## Por que a pasta `desenvolvedor` é central
+## Por que comecei pelo papel de desenvolvedor
 
-- Contém as orientações técnicas mais diretas para construir o assistente.
-- Reúne análises de viabilidade, estratégias de prompt e arquitetura RAG.
-- Ajuda a manter o foco prático para a implementação, testagem e documentação técnica do projeto.
+- É onde estão as decisões técnicas mais concretas: viabilidade, prompt engineering e arquitetura RAG.
+- Permite entender na prática como o pipeline de dados alimenta o modelo — algo que só fica claro quando você implementa.
+- Os exercícios me forçaram a ir além do "jogar documentos no LLM" e pensar em chunking, context window e governança de dados.
 
 ## Nota
 
-Esta documentação é parte do conjunto maior de papéis e níveis do projeto, mas `docs/papeis/desenvolvedor/` deve ser seu ponto de partida técnico ao trabalhar na solução.
+Repositório criado como parte da trilha de formação DGS AI First. A pasta `docs/papeis/desenvolvedor/` é o ponto de partida técnico — foi por onde construí minha compreensão do problema antes de prototipar qualquer solução.

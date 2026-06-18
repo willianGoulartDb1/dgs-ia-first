@@ -1,15 +1,15 @@
 # Prototipação de Prompt — Assistente NovaTech
 
 **Autor:** Willian Goulart  
-**Data:** 2026-06-05  
+**Data:** 2026-06-04  
 **Projeto:** NovaTech — Assistente de Suporte Logístico  
 **LLM de teste:** Claude Sonnet 4.6
 
 ---
 
-## Abordagem
+## Minha Abordagem
 
-Este exercício segue um ciclo de 4 passos: (1) escrever o prompt, (2) mapear o que é fixo e o que muda, (3) testar com perguntas reais e identificar falhas, (4) corrigir e re-testar. O objetivo não é criar o prompt perfeito de primeira — é demonstrar que sei identificar o que não funciona e por quê.
+Dividi o trabalho em 4 etapas: (1) redigir o system prompt, (2) mapear contexto fixo vs. variável, (3) testar com perguntas reais e documentar onde falhou, (4) corrigir com base nas evidências e re-testar. O ponto central não era acertar de primeira — o valor está em demonstrar que consigo identificar o que quebrou e entender o porquê.
 
 ---
 
@@ -53,9 +53,9 @@ Chunks são trechos de documentação recuperados por relevância.
 
 ---
 
-## Passo 2: O que é Fixo vs. o que Muda
+## Passo 2: Separando o que é Fixo do que Muda
 
-Num sistema RAG em produção, parte do contexto é igual em toda query (estática) e parte muda a cada pergunta (dinâmica). Entender essa divisão é o que permite gerenciar o orçamento de tokens.
+Em produção, nem tudo no contexto muda a cada requisição. Entender essa divisão é fundamental para gerenciar o orçamento de tokens — o que é estático pode ser otimizado uma vez; o dinâmico precisa de controle contínuo.
 
 **Parte fixa (estática) — ~720 tokens:**
 
@@ -113,9 +113,9 @@ Região Norte: 1.8. Região Nordeste: 1.5. Região Centro-Oeste: 1.4."
 > - Deve anexar fotos da mercadoria
 > (Fonte: POL-001, seção 3.2)
 
-**Diagnóstico:** ❌ **ERRO GRAVE.** O assistente ignorou completamente que cargas perigosas (classes 1-6 ANTT) NÃO podem ser devolvidas. A exceção está no mesmo chunk — o modelo leu a regra geral e parou antes da restrição.
+**Diagnóstico:** ❌ **ERRO GRAVE.** Esse foi o momento mais revelador do exercício. O assistente informou o prazo de 7 dias como se a carga perigosa fosse elegível, ignorando que classes 1-6 ANTT são expressamente excluídas. A exceção estava no mesmo chunk — o modelo leu o caso geral e "parou" antes da restrição.
 
-**Causa raiz:** A instrução sobre exceções está no final do prompt (seção "Casos especiais"), com linguagem suave ("inclua na resposta"). O modelo aplicou a regra geral sem ativar a regra de exceção — problema de **posição e saliência**.
+**O que causou isso:** A instrução sobre exceções ficou relegada ao final do prompt (seção "Casos especiais"), com linguagem branda ("inclua na resposta"). O modelo priorizou a regra geral e não ativou a regra de exceção — um problema clássico de **posição e saliência no contexto**.
 
 ### Teste 2: "Meu cliente é Gold, qual o SLA de resolução?"
 
@@ -240,12 +240,12 @@ MÉDIA:            6.7/10  9.3/10  +2.6
 
 ---
 
-## O que Aprendi
+## Lições que Tirei
 
-1. **Onde a instrução está no prompt importa mais que o que ela diz.** A mesma regra sobre exceções existia em v1 e v2 — a diferença foi movê-la de "Casos especiais" (final) para "REGRA CRÍTICA" (início dos guardrails).
+1. **A posição de uma instrução no prompt pesa mais que o conteúdo dela.** A regra sobre exceções já existia na v1 — a diferença foi tirá-la de "Casos especiais" (final, esquecido) e colocar como "REGRA CRÍTICA" (topo dos guardrails). Mesma informação, resultado oposto.
 
-2. **Exemplos negativos ativam o modelo melhor que regras abstratas.** Mostrar "Resposta ERRADA" com o caso exato da carga perigosa foi o que corrigiu o comportamento. "Mencione exceções" sozinho não funcionou.
+2. **Exemplos negativos funcionam melhor que regras abstratas.** Escrever "Resposta ERRADA: O prazo de devolução é de 7 dias úteis" foi o que efetivamente corrigiu o comportamento. Dizer apenas "mencione exceções" não havia sido suficiente.
 
-3. **O custo extra em tokens se justifica quando evita erros graves.** v2 é ~30% maior (~720→~950 tokens). Esse custo fixo por query eliminou o erro mais perigoso — orientar incorretamente sobre carga perigosa teria impacto operacional real.
+3. **O custo extra em tokens compensa quando evita erros graves.** A v2 ficou ~30% maior (~720→~950 tokens no contexto estático). Esse acréscimo por query eliminou justamente o erro mais perigoso — informar incorretamente sobre carga perigosa teria consequências operacionais reais na NovaTech.
 
-4. **Testes com casos-limite são mais reveladores que testes com perguntas fáceis.** Se eu tivesse testado só a pergunta 2 (SLA Gold), acharia que v1 estava perfeita. A carga perigosa era o caso-limite que revelou o problema real.
+4. **Testar com casos-limite é o que revela problemas de verdade.** Se eu tivesse testado só com "Qual o SLA Gold?" acharia que a v1 estava impecável. Foi a pergunta sobre carga perigosa — o caso-limite — que expôs a fragilidade do prompt.

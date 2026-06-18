@@ -3,7 +3,8 @@
 > **Programa:** Trilha de Certificação AI First — DGS / DB1 Global Software  
 > **Aluno:** Willian Goulart  
 > **Data da avaliação:** 2026-06-05  
-> **Avaliador:** Claude Sonnet 4.6
+> **Avaliador:** Claude Sonnet 4.6  
+> **Papel:** Desenvolvedor
 
 ---
 

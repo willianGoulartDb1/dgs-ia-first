@@ -1,7 +1,7 @@
 # Relatório de Avaliação Completa
 ## Product Specialist Deliverables — NovaTech AI Assistant
 
-**Data de Avaliação:** 2026-06-05  
+**Data de Avaliação:** 2026-06-04  
 **Avaliador:** Willian Goulart — Product Specialist (DB1)  
 **Projeto:** Assistente de IA para Atendimento — NovaTech  
 **Versão:** 1.1 (com ajustes rápidos aplicados)

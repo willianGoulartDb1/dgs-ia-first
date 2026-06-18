@@ -1,7 +1,7 @@
 # Comunicação de Expectativas — Resposta ao Diretor da NovaTech
 
 **Autor:** Willian Goulart — Delivery Manager (DB1)  
-**Data:** 2026-06-05  
+**Data:** 2026-06-04  
 **Versão:** 1.0
 
 ---

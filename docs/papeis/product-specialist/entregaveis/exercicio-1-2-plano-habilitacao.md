@@ -1,7 +1,7 @@
 # Plano de Habilitação — Assistente IA NovaTech
 
 **Autor:** Willian Goulart — Product Specialist (DB1)  
-**Data:** 2026-06-05  
+**Data:** 2026-06-04  
 **Versão:** 1.0
 
 ---

@@ -1,7 +1,7 @@
 # Avaliação de Viabilidade — Projeto Assistente IA NovaTech
 
 **Autor:** Willian Goulart — Delivery Manager (DB1)  
-**Data:** 2026-06-05  
+**Data:** 2026-06-04  
 **Versão:** 1.0  
 **Método:** Análise colaborativa com Claude (4 iterações documentadas)
 

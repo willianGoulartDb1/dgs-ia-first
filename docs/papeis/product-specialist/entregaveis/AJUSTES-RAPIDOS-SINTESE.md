@@ -1,4 +1,5 @@
 # Ajustes Rápidos — Síntese das Melhorias
+**Autor:** Willian Goulart  
 **Data:** 2026-06-05  
 **Versão:** 1.1 (após feedback de Product Specialist)
 

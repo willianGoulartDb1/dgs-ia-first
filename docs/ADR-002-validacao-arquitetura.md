@@ -2,9 +2,9 @@
 ## Sistema de Atendimento ao Cliente — NovaTech
 
 **Status:** Aprovado  
-**Data:** 2026-05-28  
-**Revisão:** 2026-05-28 — Estratégia de HA e pré-requisitos de dados confirmados (Sprint 0)  
-**Autor:** Product Manager  
+**Data:** 2026-06-03  
+**Revisão:** 2026-06-04 — Estratégia de HA e pré-requisitos de dados confirmados (Sprint 0)  
+**Autor:** Willian Goulart (Desenvolvedor)  
 **Referências:** ADR-001 (Regras de Negócio), estudo_de_viabilidade.md, docs/inputs.md
 
 ---

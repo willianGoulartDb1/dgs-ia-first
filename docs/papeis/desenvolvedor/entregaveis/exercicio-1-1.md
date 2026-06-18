@@ -2,13 +2,14 @@
 
 **Autor:** Willian Goulart  
 **Papel:** Desenvolvedor  
-**Data:** 2026-06-05
+**Data:** 2026-06-04  
+**Contexto:** Análise solicitada pelo Tech Lead para avaliar a viabilidade de um assistente RAG sobre a base documental da NovaTech
 
 ---
 
 ## 1. Diagnóstico por Formato de Documento
 
-A viabilidade do RAG depende menos do modelo e mais de como os dados chegam ao índice. Cada formato da NovaTech tem armadilhas diferentes.
+Antes de pensar em modelo ou embeddings, o primeiro passo foi entender a qualidade dos dados de entrada. A experiência mostra que a viabilidade de um RAG depende mais da pipeline de ingestão do que da escolha do LLM. Analisei cada formato presente na NovaTech com esse olhar.
 
 ### SharePoint: PDFs com Tabelas (800 documentos)
 
@@ -20,9 +21,9 @@ O problema é agravado pela coexistência de PROC-042 v1 e v2 com valores difere
 
 ### SharePoint: PDFs Escaneados
 
-Documentos digitalizados exigem OCR. Taxa de erro varia com qualidade do scan — `1` vira `l`, `0` vira `O`. Campos numéricos corrompidos (SLAs, percentuais) geram respostas factualmente erradas sem detecção.
+Essa foi a parte que mais me preocupou. Documentos digitalizados passam por OCR e a taxa de erro pode ser silenciosa — `1` vira `l`, `0` vira `O`, e um SLA de "2h" pode virar "2n". O problema é que números corrompidos geram respostas factualmente erradas sem que ninguém perceba: o LLM confia no que recebeu.
 
-**Abordagem:** Tesseract com threshold ≥85% ou Azure Document Intelligence. Score de confiança como metadado — chunks <75% excluídos do retrieval por padrão. Pós-processamento com dicionário de domínio logístico (CT-e, ANTT, SLA).
+**Abordagem:** Tesseract com threshold de confiança ≥85%, ou Azure Document Intelligence para documentos críticos. Incluir score de confiança como metadado do chunk — chunks abaixo de 75% ficam excluídos do retrieval por padrão. Complementar com pós-processamento usando dicionário de termos logísticos (CT-e, ANTT, SLA, PROC).
 
 ### Confluence: Wiki com Links Internos (400 páginas)
 
@@ -112,9 +113,11 @@ Chunks de **600-1.000 tokens**. Menos chunks de maior qualidade. O top-5 mais re
 
 ---
 
-## 5. Viável? Sim, com Ressalvas
+## 5. Conclusão: Viável, mas o Risco Está nos Dados
 
-A base de ~3,1M tokens cabe em um único índice vetorial sem sharding. O GPT-4o com 128K de context window suporta até 247 chunks por query, cobrindo a maioria dos cenários da NovaTech.
+Tecnicamente, não vejo impedimento: a base de ~3,1M tokens cabe num único índice vetorial sem necessidade de sharding, e o GPT-4o com 128K de context window dá margem confortável para os cenários de uso. O custo de indexação é desprezível.
+
+O que me preocupa de verdade não é a tecnologia — é a governança da base documental. A coexistência de PROC-042 v1 e v2 sem definição clara de vigência é o tipo de problema que nenhum modelo resolve sozinho.
 
 ### O que precisa resolver antes de produção
 
@@ -135,10 +138,12 @@ A base de ~3,1M tokens cabe em um único índice vetorial sem sharding. O GPT-4o
 
 ---
 
-## 6. Processo de Iteração com Claude
+## 6. Como Usei o Claude para Revisar
 
-**Feedback 1:** A estimativa original usava 100 células/planilha. O retorno apontou que planilhas corporativas tipicamente têm 200+ células semânticas. Ajustado: 200 × 5 palavras = 50.000 palavras (impacto de ~0,5% no total, mas mais realista).
+Após redigir a análise, enviei o documento ao Claude pedindo que apontasse estimativas otimistas ou riscos que eu pudesse ter ignorado. Três pontos voltaram:
 
-**Feedback 2:** Faltava análise de custo de indexação. Adicionada: ~$0,31 com ada-002 para toda a base. Viável.
+**Retorno 1:** Minha estimativa original usava 100 células por planilha. O Claude argumentou que planilhas corporativas típicas têm 200+ células semânticas relevantes. Ajustei para 200 × 5 palavras = 50.000 palavras. Na prática mudou pouco (~0,5% do total), mas a premissa ficou mais honesta.
 
-**Feedback 3:** O risco de documentos conflitantes estava enterrado na seção de fontes. Movido para posição 1 na tabela de riscos — é o cenário com maior potencial de dano real (cobrança errada de frete).
+**Retorno 2:** Eu não tinha incluído análise de custo de indexação. Adicionei: ~$0,31 com ada-002 para indexar toda a base. Um dado simples que fortalece o argumento de viabilidade financeira.
+
+**Retorno 3:** O risco de documentos conflitantes estava mencionado na seção de fontes, quase como nota de rodapé. O Claude sinalizou que deveria ser o risco #1. Concordei — é o cenário com maior potencial de dano real (imagine o atendente informando o multiplicador de frete errado). Promovi para primeira posição na tabela de riscos.
