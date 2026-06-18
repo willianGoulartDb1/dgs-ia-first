@@ -2,8 +2,8 @@
 ## Sistema de Atendimento ao Cliente — NovaTech Transportes
 
 **Status:** Proposto  
-**Data:** 2026-06-03  
-**Autor:** Willian Goulart (Desenvolvedor)  
+**Data:** 2026-05-28  
+**Autor:** Product Manager  
 **Contexto:** Baseado na documentação operacional da NovaTech (POL-001, PROC-042, PROC-042-v2, SLA-2024, FAQ-Atendimento)
 
 ---

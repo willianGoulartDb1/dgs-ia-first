@@ -1,8 +1,7 @@
-ss# Matriz RACI — Papéis e Responsabilidades
+# Matriz RACI — Papéis e Responsabilidades
 **Projeto:** Assistente de IA para Atendimento — NovaTech  
-as **Autor:** Willian Goulart  
 **Versão:** 1.0  
-**Data:** 2026-06-04
+**Data:** 2026-06-05
 
 ---
 

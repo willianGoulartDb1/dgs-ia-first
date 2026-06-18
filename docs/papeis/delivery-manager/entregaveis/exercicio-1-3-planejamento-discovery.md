@@ -2,7 +2,7 @@
 
 **Autor:** Willian Goulart — Delivery Manager (DB1)  
 **Data:** 2026-06-05  
-**Versão:** 1.1
+**Versão:** 1.0
 
 ---
 

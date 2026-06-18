@@ -1,7 +1,7 @@
 # Mapeamento de Expectativas — Assistente IA NovaTech
 
 **Autor:** Willian Goulart — Product Specialist (DB1)  
-**Data:** 2026-06-03  
+**Data:** 2026-06-05  
 **Versão:** 1.0
 
 ---

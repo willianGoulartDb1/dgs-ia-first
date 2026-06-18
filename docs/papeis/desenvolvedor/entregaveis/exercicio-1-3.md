@@ -1,18 +1,18 @@
 # Pipeline RAG — Protótipo NovaTech
 
 **Autor:** Willian Goulart  
-**Data:** 2026-06-04  
-**Base documental:** `docs/fonte-da-verdade/` (5 arquivos .md)
+**Data:** 2026-06-05  
+**Base documental:** `docs/fonte-da-verdade/` (5 arquivos)
 
 ---
 
 ## Decisões de Arquitetura
 
-**Stack:** Python + ChromaDB + sentence-transformers (all-MiniLM-L6-v2). Optei por não usar LangChain deliberadamente — queria implementar cada etapa na mão para entender exatamente o que acontece em cada camada do pipeline, sem abstrações opacas.
+**Stack escolhida:** Python + ChromaDB + sentence-transformers (all-MiniLM-L6-v2). Sem LangChain — implementei cada etapa manualmente para entender o que acontece em cada camada.
 
-**Chunking:** Abordagem híbrida — texto corrido dividido por parágrafo com overlap de 50 tokens; tabelas Markdown preservadas como chunk único (nunca fragmentar uma tabela). Limite máximo de 500 tokens por chunk.
+**Estratégia de chunking:** Híbrida — texto corrido dividido por parágrafo com overlap de 50 tokens; tabelas Markdown preservadas inteiras (nunca quebrar uma tabela ao meio). Limite de 500 tokens por chunk.
 
-**Justificativa para proteger tabelas:** As tabelas do PROC-042 e SLA-2024 carregam dados numéricos críticos (multiplicadores, prazos). Se o chunking cortar uma tabela no meio, o cabeçalho fica num chunk e os dados em outro — o LLM receberia "1.3, 1.1, 1.8" sem saber que são multiplicadores regionais. Perdi isso em um teste inicial e percebi que era inaceitável.
+**Por que proteger tabelas:** As tabelas do PROC-042 e SLA-2024 contêm dados numéricos críticos. Cortar uma tabela no meio pode separar o cabeçalho dos dados — o LLM receberia "1.3, 1.1, 1.8" sem saber que são multiplicadores regionais.
 
 ---
 
@@ -21,8 +21,7 @@
 ```python
 """
 Ingestão de documentos NovaTech em ChromaDB.
-Embeddings locais com sentence-transformers (gratuito, sem API key).
-Autor: Willian Goulart
+Usa sentence-transformers para embeddings locais (gratuito).
 """
 
 import os
@@ -30,7 +29,6 @@ import re
 import chromadb
 from sentence_transformers import SentenceTransformer
 
-# Configuração central — alterar aqui se mudar a base
 PASTA_DOCS = "docs/fonte-da-verdade"
 MODELO_EMBED = "all-MiniLM-L6-v2"
 MAX_CHUNK_TOKENS = 500
@@ -170,17 +168,14 @@ Total: 38 chunks
 ChromaDB: 38 chunks armazenados.
 ```
 
-> **Uso do Copilot:** Ao digitar o docstring da função `detectar_blocos()`, o Copilot sugeriu a abordagem de regex `r"^\s*\|"` com buffer duplo (um para tabela, outro para texto corrido). Aceitei a completion e validei manualmente contra os documentos da NovaTech — funcionou para todos os 5 arquivos sem ajuste.
+> **Copilot:** A função `detectar_blocos()` foi sugerida pelo Copilot ao digitar o comentário sobre detecção de tabelas Markdown. O regex `r"^\s*\|"` e a lógica de buffer duplo foram completion do Copilot, validada manualmente.
 
 ---
 
 ## Script 2: Busca Semântica (`busca.py`)
 
 ```python
-"""
-Busca semântica no ChromaDB da NovaTech.
-Retorna os N chunks mais relevantes com filtro por score mínimo.
-"""
+"""Busca semântica no ChromaDB da NovaTech."""
 
 import chromadb
 from sentence_transformers import SentenceTransformer
@@ -215,19 +210,16 @@ def buscar_chunks(pergunta: str, n=N_RESULTADOS) -> list[dict]:
     return sorted(chunks, key=lambda c: c["score"], reverse=True)
 ```
 
-**Como cheguei nesses parâmetros:**
-- **N=4:** Testei com N=3 primeiro e perdi contexto em perguntas que cruzavam domínios (ex: SLA + penalidades). Com N=5, aparecia muito ruído em perguntas diretas. N=4 foi o ponto de equilíbrio que observei na prática.
-- **Threshold 0.35:** Abaixo desse valor, os chunks retornados eram consistentemente irrelevantes — o ChromaDB trazia matches por sobreposição de palavras, não por semântica real.
+**Parâmetros justificados:**
+- **N=4:** N=3 perdia contexto em perguntas cruzadas (SLA + penalidades). N=5 trazia ruído em perguntas diretas. N=4 foi o equilíbrio observado nos testes.
+- **Threshold 0.35:** Chunks abaixo desse valor eram consistentemente irrelevantes — o ChromaDB retornava matches por volume de palavras compartilhadas, não por semântica.
 
 ---
 
 ## Script 3: Montagem do Prompt (`montagem_prompt.py`)
 
 ```python
-"""
-Montagem do prompt RAG completo para envio ao LLM.
-Combina system prompt estático + chunks recuperados + pergunta do usuário.
-"""
+"""Montagem do prompt RAG completo."""
 
 from busca import buscar_chunks
 
@@ -385,10 +377,10 @@ def pipeline_rag(pergunta: str, n=4) -> dict:
 
 ---
 
-## O que Ficou Claro pra Mim
+## Reflexão Final
 
-**Sobre RAG na prática:** Antes de fazer esse exercício, minha visão era "colocar documentos num vector store e buscar". Agora entendo que o trabalho real está na preparação — a cadeia é: qualidade do chunking → qualidade da recuperação → qualidade da resposta. Se o primeiro elo falha, não há LLM que salve.
+**O que aprendi sobre RAG:** Não é "jogar documentos num banco vetorial e fazer busca". O trabalho real está na preparação: qualidade do chunking → qualidade da recuperação → qualidade da resposta. O gargalo mais crítico não é o modelo nem os embeddings — é a governança da base documental. PROC-042 v1 e v2 coexistindo sem hierarquia é um problema organizacional, não tecnológico.
 
-**RAG é engenharia de dados, não chamada de API.** A chamada ao modelo é literalmente uma linha de código. Todo o esforço está em como os dados entram (chunking, embeddings, metadados), como são recuperados (parâmetros, scores, thresholds), e como são apresentados ao modelo (ordem no contexto, formatação, instruções). Equipes que tratam RAG como integração de API acabam produzindo assistentes que alucinam — e eu entendi o porquê na prática com os testes do P3 (documentos contraditórios).
+**RAG é engenharia de dados ou chamada de API?** Engenharia de dados, sem dúvida. A chamada ao LLM é uma linha de código. O trabalho está em como os dados entram (chunking, embeddings, metadados), como são recuperados (parâmetros, thresholds), e como são apresentados ao modelo (ordem, formatação, prompt). Equipes que tratam RAG como integração de API produzem assistentes que alucinam.
 
-**O que eu faria diferente em produção:** Criaria um golden dataset com 20-30 pares (pergunta, resposta esperada) rodando automaticamente a cada mudança na base. Um LLM-as-Judge avaliando precisão, citação de fonte, conformidade com guardrails e tom. Isso funcionaria como um gate de qualidade — impediria que atualizações documentais degradassem o assistente silenciosamente.
+**Próximo passo para produção:** Golden dataset com 20-30 pares (pergunta, resposta esperada) executado automaticamente a cada mudança na base. Um LLM-as-Judge avaliando precisão, citação, conformidade e tom. Isso cria um gate de qualidade que impede que atualizações documentais degradem o assistente sem ninguém perceber.
